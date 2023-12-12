@@ -97,7 +97,7 @@ Node *newNode() {
 
     printf("Digite a data da producao (separado por espaco): ");
     scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
-
+    
     printf("Digite o tipo de cultivar do feno (Tifton 85, Florakirk, Jiggs, Coastcross): ");
     scanf("%s", n->info.tipoDeFardo.cultivar);
 
@@ -163,7 +163,6 @@ void consultarPorData(Node *t, Data data) {
         consultarPorData(t->right, data);
     } 
     else {
-        // Data encontrada
         printf("Data: %d/%d/%d\n Cultivar: %s\n Tipo de feno: %c\n Quantidade de fardos: %d\n", data.dia, data.mes, data.ano, t->info.tipoDeFardo.cultivar, t->info.tipoDeFardo.tipoDeFeno, t->info.qtDeFardos);
         // Recurso para encontrar outras entradas com a mesma data
         consultarPorData(t->left, data);
@@ -320,87 +319,47 @@ Node *removerNode(Node *t, int codigo) {
         return t;
     }
 
-    Node *aux = t; // t continua apontando pra raiz
-    if (codigo < aux->info.codigo) {
-        aux->left = removerNode(aux->left, codigo);
+    if (codigo < t->info.codigo) {
+        t->left = removerNode(t->left, codigo);
     } 
-    else if (codigo > aux->info.codigo) {
-        aux->right = removerNode(aux->right, codigo);
+    else if (codigo > t->info.codigo) {
+        t->right = removerNode(t->right, codigo);
     } 
     else {
-        // Nó a ser removido encontrado
-        // se o nó é uma folha(não tem filhos)
-        if(aux->left == NULL && aux->right == NULL){
-            free(aux);
+        if(t->left == NULL && t->right == NULL){
+            free(t);
             printf("Registro com código %d excluído com sucesso.\n", codigo);
-            return t;
+            return NULL;
         }
-        //se o nó tem apenas um filho
-        if(aux->left != NULL && aux->right == NULL){
-            Node *aux2 = aux->left;
-            free(aux);
+        if(t->left != NULL && t->right == NULL){
+            Node *aux = t->left;
+            free(t);
             printf("Registro com código %d excluído com sucesso.\n", codigo);
-            return aux2;
+            return aux;
         }
-        else if(aux->left == NULL && aux->right != NULL){
-            Node *aux2 = aux->right;
-            free(aux);
+        else if(t->left == NULL && t->right != NULL){
+            Node *aux = t->right;
+            free(t);
             printf("Registro com código %d excluído com sucesso.\n", codigo);
-            return aux2;
+            return aux;
         }
-        // tem os dois filhos
         else{ 
-            Node *succParent = aux;
-            Node *succ = aux->right;
+            Node *successorParent = t;
+            Node *succ = t->right;
             while (succ->left != NULL){
-                succParent = succ;
+                successorParent = succ;
                 succ = succ->left;
             }
-            if(succParent != aux){
-                succParent->left = succ->right;
+            if(successorParent != t){
+                successorParent->left = succ->right;
             }
             else{
-                succParent->right = succ->right;
+                successorParent->right = succ->right;
             }
-            aux->info = succ->info;
+            t->info = succ->info;
             free(succ);
             printf("Registro com código %d excluído com sucesso.\n", codigo);
             return t;
-        }
-        // se o nó é a raiz
-        if(aux == t){
-            if(t->right->left == NULL){
-                t->right->left = aux->left;
-                t->right = t;
-                free(aux);
-                printf("Registro com código %d excluído com sucesso.\n", codigo);
-                return t;
-            }
-            else if(t->left->right == NULL){
-                t->left->right = aux->right;
-                t->left = t;
-                free(aux);
-                printf("Registro com código %d excluído com sucesso.\n", codigo);
-                return t;
-            }
-            else{
-                Node *succParent = aux;
-                Node *succ = aux->right;
-                while (succ->left != NULL){
-                    succParent = succ;
-                    succ = succ->left;
-                }
-                if(succParent != aux){
-                    succParent->left = succ->right;
-                }
-                else{
-                    succParent->right = succ->right;
-                }
-                aux->info = succ->info;
-                free(succ);
-                printf("Registro com código %d excluído com sucesso.\n", codigo);
-                return t;
-            }
         }
     }
     return t;
@@ -411,7 +370,7 @@ void chamarExclusao(Tree *t) {
     int codigoExclusao;
     printf("Digite o codigo do registro que deseja excluir: ");
     scanf("%d", &codigoExclusao);
-    removerNode(t->root, codigoExclusao);
+    t->root = removerNode(t->root, codigoExclusao);
 }
 
 // Função do menu
