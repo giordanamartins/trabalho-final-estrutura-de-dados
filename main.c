@@ -97,7 +97,36 @@ Node *newNode() {
 
     printf("Digite a data da producao (separado por espaco): ");
     scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
-    
+    while (1){
+        if (n->info.dataProducao.dia >= 31){
+            printf("Data invalida, tente novamente: ");
+            scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
+        }
+        if (n->info.dataProducao.dia < 0){
+            printf("Data invalida, tente novamente: ");
+            scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
+        }
+        if (n->info.dataProducao.mes >= 12){
+            printf("Data invalida, tente novamente: ");
+            scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
+        }
+        if (n->info.dataProducao.dia < 0){
+            printf("Data invalida, tente novamente: ");
+            scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
+        }
+        if (n->info.dataProducao.ano < 1951){
+            printf("Data invalida, tente novamente: ");
+            scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
+        }
+        if (n->info.dataProducao.ano >= 2023){
+            printf("Data invalida, tente novamente: ");
+            scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
+        }
+        else{
+            break;
+        }
+    }
+
     printf("Digite o tipo de cultivar do feno (Tifton 85, Florakirk, Jiggs, Coastcross): ");
     scanf("%s", n->info.tipoDeFardo.cultivar);
 
@@ -163,14 +192,34 @@ void consultarPorData(Node *t, Data data) {
         consultarPorData(t->right, data);
     } 
     else {
-        printf("Data: %d/%d/%d\n Cultivar: %s\n Tipo de feno: %c\n Quantidade de fardos: %d\n", data.dia, data.mes, data.ano, t->info.tipoDeFardo.cultivar, t->info.tipoDeFardo.tipoDeFeno, t->info.qtDeFardos);
-        // Recurso para encontrar outras entradas com a mesma data
+        printf("<%d/%d/%d>: <%s> - <%c> - <%d>\n", data.dia, data.mes, data.ano, t->info.tipoDeFardo.cultivar, t->info.tipoDeFardo.tipoDeFeno, t->info.qtDeFardos);
+    }
+
+        if (t->left != NULL){
         consultarPorData(t->left, data);
+        }
+        if (t->right != NULL){
         consultarPorData(t->right, data);
+        }
+}
+
+void somarFardos(Node *t, char cultivar[20], int *somaFardos) {
+    if (t == NULL) {
+        return;
+    }
+    if (strcmp(cultivar, t->info.tipoDeFardo.cultivar) < 0) {
+        somarFardos(t->left, cultivar, somaFardos);
+    } 
+    else if (strcmp(cultivar, t->info.tipoDeFardo.cultivar) > 0) {
+        somarFardos(t->right, cultivar, somaFardos);
+    } 
+    else {
+        *somaFardos += t->info.qtDeFardos;
+        somarFardos(t->left, cultivar, somaFardos);
+        somarFardos(t->right, cultivar, somaFardos);
     }
 }
 
-// Função para consultar por cultivar
 void consultarPorCultivar(Node *t, char cultivar[20]) {
     if (t == NULL) {
         printf("Nenhum registro encontrado para o cultivar %s.\n", cultivar);
@@ -186,25 +235,18 @@ void consultarPorCultivar(Node *t, char cultivar[20]) {
         consultarPorCultivar(t->right, cultivar);
     } 
     else {
-        // Cultivar encontrado
-        printf("Cultivar: %s\n Tipo de feno: %c\n", cultivar, t->info.tipoDeFardo.tipoDeFeno);
 
         int somaFardos = 0;
+        somarFardos(t, cultivar, &somaFardos);
 
-        // Encontrar outros registros com o mesmo cultivar
-        Node *aux = t;
-        while (aux != NULL && strcmp(cultivar, aux->info.tipoDeFardo.cultivar) == 0) {
-            printf("%d\n", aux->info.qtDeFardos);
-            somaFardos += aux->info.qtDeFardos;
-            aux = aux->right;
+        printf("<%s>: - <%c> - <%d>\n", cultivar, t->info.tipoDeFardo.tipoDeFeno, somaFardos);
+
+        if (t->left != NULL){
+            consultarPorCultivar(t->left, cultivar);
         }
-
-        // Exibir a soma da quantidade de fardos
-        printf("Soma da quantidade de fardos: %d\n", somaFardos);
-
-        // Recurso para encontrar outras entradas com o mesmo cultivar
-        consultarPorCultivar(t->left, cultivar);
-        consultarPorCultivar(t->right, cultivar);
+        if (t->right != NULL){
+            consultarPorCultivar(t->right, cultivar);
+        }
     }
 }
 
