@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Definindo as estruturas
 struct data {
     int dia;
     int mes;
@@ -37,7 +36,6 @@ struct ttree {
 };
 typedef struct ttree Tree;
 
-// Inicializa a árvore
 void initTree(Tree *t) {
     t->root = NULL;
 }
@@ -58,7 +56,6 @@ int buscaCodigo(Node *t, Node *key) {
     }
 }
 
-// Função para comparar datas
 int comparaData(Data data1, Data data2) {
     if (data1.ano != data2.ano) {
         return data1.ano - data2.ano;
@@ -69,7 +66,6 @@ int comparaData(Data data1, Data data2) {
     return data1.dia - data2.dia;
 }
 
-// Função para inserir um novo nó na árvore
 Node *insertNode(Node *t, Node *n) {
     if (t == NULL) {
         return n;
@@ -89,7 +85,6 @@ Node *insertNode(Node *t, Node *n) {
     return t;
 }
 
-// Função para criar um novo nó
 Node *newNode() {
     Node *n = (Node *)malloc(sizeof(Node));
     if (n == NULL) {
@@ -127,7 +122,6 @@ Node *newNode() {
     return n;
 }
 
-// Função para incluir um registro na árvore
 void incluirRegistro(Tree *t) {
     Node *n = newNode();
     if(buscaCodigo(t->root, n) == 1){
@@ -138,7 +132,6 @@ void incluirRegistro(Tree *t) {
     }
 }
 
-// Função para listar todos os registros
 void listarTodos(Node *t) {
     if (t == NULL) {
         return;
