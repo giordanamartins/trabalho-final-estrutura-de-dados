@@ -70,7 +70,6 @@ Node *insertNode(Node *t, Node *n) {
     if (t == NULL) {
         return n;
     }
-    // Comparando as datas
     int comp = comparaData(n->info.dataProducao, t->info.dataProducao);
     if (comp < 0) {
         t->left = insertNode(t->left, n);
@@ -79,7 +78,6 @@ Node *insertNode(Node *t, Node *n) {
         t->right = insertNode(t->right, n);
     } 
     else {
-        // Em caso de datas iguais, você pode decidir o que fazer, neste caso inseri à esquerda
         t->left = insertNode(t->left, n);
     }
     return t;
@@ -88,17 +86,17 @@ Node *insertNode(Node *t, Node *n) {
 Node *newNode() {
     Node *n = (Node *)malloc(sizeof(Node));
     if (n == NULL) {
-        fprintf(stderr, "Erro ao alocar memória para o novo nó.\n");
+        fprintf(stderr, "Erro ao alocar memória para o novo no.\n");
         exit(EXIT_FAILURE);
     }
 
-    printf("Digite o código da producao: ");
+    printf("Digite o codigo da producao: ");
     scanf("%d", &n->info.codigo);
 
     printf("Digite a data da producao (separado por espaco): ");
     scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
     while (1){
-        if (n->info.dataProducao.dia >= 31){
+        if (n->info.dataProducao.dia > 31){
             printf("Data invalida, tente novamente: ");
             scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
         }
@@ -106,7 +104,7 @@ Node *newNode() {
             printf("Data invalida, tente novamente: ");
             scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
         }
-        if (n->info.dataProducao.mes >= 12){
+        if (n->info.dataProducao.mes > 12){
             printf("Data invalida, tente novamente: ");
             scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
         }
@@ -118,7 +116,7 @@ Node *newNode() {
             printf("Data invalida, tente novamente: ");
             scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
         }
-        if (n->info.dataProducao.ano >= 2023){
+        if (n->info.dataProducao.ano > 2023){
             printf("Data invalida, tente novamente: ");
             scanf("%d %d %d", &n->info.dataProducao.dia, &n->info.dataProducao.mes, &n->info.dataProducao.ano);
         }
@@ -127,15 +125,53 @@ Node *newNode() {
         }
     }
 
-    printf("Digite o tipo de cultivar do feno (Tifton 85, Florakirk, Jiggs, Coastcross): ");
-    scanf("%s", n->info.tipoDeFardo.cultivar);
+    int selecao;
+    printf("Selecione o tipo de cultivar do feno:\n 1 - Tifton 85, 2 - Florakirk, 3 - Jiggs, 4 - Coastcross: ");
+    scanf("%d", &selecao);
+    switch (selecao){
+        case 1:
+        strcpy(n->info.tipoDeFardo.cultivar, "Tifton 85");
+        break;
 
-    printf("Digite o tipo do feno (A, B ou C): ");
-    if (scanf(" %c", &n->info.tipoDeFardo.tipoDeFeno) != 1) {
-        fprintf(stderr, "Erro ao ler o tipo de feno.\n");
-        exit(EXIT_FAILURE);
+        case 2:
+        strcpy(n->info.tipoDeFardo.cultivar, "Florakirk");
+        break;
+
+        case 3:
+        strcpy(n->info.tipoDeFardo.cultivar, "Jiggs");
+        break;
+
+        case 4:
+        strcpy(n->info.tipoDeFardo.cultivar, "Coastcross");
+        break;
+        
+        default:
+        printf("Opçao invalida. Tente novamente.\n");
+        break;
     }
 
+    int selecao2;
+    printf("Selecione o tipo do feno:\n 1 - A, 2 - B, 3 - C: ");
+    scanf(" %d", &selecao2);
+
+    switch (selecao2){
+        case 1:
+        n->info.tipoDeFardo.tipoDeFeno = 'A';
+        break;
+
+        case 2:
+        n->info.tipoDeFardo.tipoDeFeno = 'B';
+        break;
+
+        case 3:
+        n->info.tipoDeFardo.tipoDeFeno = 'C';
+        break;
+
+        default:
+        printf("Opçao invalida. Tente novamente.\n");
+        break;
+    }
+    
     printf("Digite o diametro do feno: ");
     scanf("%d", &n->info.tipoDeFardo.diametro);
 
@@ -154,7 +190,7 @@ Node *newNode() {
 void incluirRegistro(Tree *t) {
     Node *n = newNode();
     if(buscaCodigo(t->root, n) == 1){
-        printf("Nao foi possivel inserir pois o codigo de producao ja existe.");
+        printf("Nao foi possivel inserir pois o codigo de producao ja existe.\n");
     } 
     else{
        t->root = insertNode(t->root, n); 
@@ -203,54 +239,92 @@ void consultarPorData(Node *t, Data data) {
         }
 }
 
-void somarFardos(Node *t, char cultivar[20], int *somaFardos) {
+int somaFardosA(Node *t, char cultivar[20]) {
     if (t == NULL) {
+        return 0;
+    }
+
+    int soma = 0;
+    soma += somaFardosA(t->left, cultivar);
+    if ((strcmp(cultivar, t->info.tipoDeFardo.cultivar) == 0) && (t->info.tipoDeFardo.tipoDeFeno == 'A')){
+        soma += t->info.qtDeFardos;
+    }
+    soma += somaFardosA(t->right, cultivar);
+    return soma;
+}
+
+int somaFardosB(Node *t, char cultivar[20]) {
+    if (t == NULL) {
+        return 0;
+    }
+
+    int soma = 0;
+    soma += somaFardosB(t->left, cultivar);
+    if ((strcmp(cultivar, t->info.tipoDeFardo.cultivar) == 0) && (t->info.tipoDeFardo.tipoDeFeno == 'B')){
+        soma += t->info.qtDeFardos;
+    }
+    soma += somaFardosB(t->right, cultivar);
+    return soma;
+}
+
+int somaFardosC(Node *t, char cultivar[20]) {
+    if (t == NULL) {
+        return 0;
+    }
+
+    int soma = 0;
+    soma += somaFardosC(t->left, cultivar);
+    if ((strcmp(cultivar, t->info.tipoDeFardo.cultivar) == 0) && (t->info.tipoDeFardo.tipoDeFeno == 'C')){
+        soma += t->info.qtDeFardos;
+    }
+    soma += somaFardosC(t->right, cultivar);
+    return soma;
+}
+
+void consultarPorCultivar(Node *t, int selop) {
+    if (t == NULL) {
+        printf("Nenhum registro encontrado para o cultivar.\n");
         return;
     }
-    if (strcmp(cultivar, t->info.tipoDeFardo.cultivar) < 0) {
-        somarFardos(t->left, cultivar, somaFardos);
-    } 
-    else if (strcmp(cultivar, t->info.tipoDeFardo.cultivar) > 0) {
-        somarFardos(t->right, cultivar, somaFardos);
-    } 
-    else {
-        *somaFardos += t->info.qtDeFardos;
-        somarFardos(t->left, cultivar, somaFardos);
-        somarFardos(t->right, cultivar, somaFardos);
+
+    char opcaocultivar[20];
+    switch (selop){
+        case 1:
+            strcpy(opcaocultivar, "Tifton 85");
+            break;
+
+        case 2:
+            strcpy(opcaocultivar, "Florakirk");
+            break;
+
+        case 3:
+            strcpy(opcaocultivar, "Jiggs");
+            break;
+
+        case 4:
+            strcpy(opcaocultivar, "Coastcross");
+            break;
+
+        default:
+            printf("Opção inválida. Tente novamente.\n");
+            return;
+    }
+
+    int somarFardosA = somaFardosA(t, opcaocultivar);
+    int somarFardosB = somaFardosB(t, opcaocultivar);
+    int somarFardosC = somaFardosC(t, opcaocultivar);
+
+    if (somarFardosA != 0) {
+        printf("<%s>: - <A> - <%d>\n", opcaocultivar, somarFardosA);
+    }
+    if (somarFardosB != 0) {
+        printf("<%s>: - <B> - <%d>\n", opcaocultivar, somarFardosB);
+    }
+    if (somarFardosC != 0) {
+        printf("<%s>: - <C> - <%d>\n", opcaocultivar, somarFardosC);
     }
 }
 
-void consultarPorCultivar(Node *t, char cultivar[20]) {
-    if (t == NULL) {
-        printf("Nenhum registro encontrado para o cultivar %s.\n", cultivar);
-        return;
-    }
-
-    int comp = strcmp(cultivar, t->info.tipoDeFardo.cultivar);
-
-    if (comp < 0) {
-        consultarPorCultivar(t->left, cultivar);
-    } 
-    else if (comp > 0) {
-        consultarPorCultivar(t->right, cultivar);
-    } 
-    else {
-
-        int somaFardos = 0;
-        somarFardos(t, cultivar, &somaFardos);
-
-        printf("<%s>: - <%c> - <%d>\n", cultivar, t->info.tipoDeFardo.tipoDeFeno, somaFardos);
-
-        if (t->left != NULL){
-            consultarPorCultivar(t->left, cultivar);
-        }
-        if (t->right != NULL){
-            consultarPorCultivar(t->right, cultivar);
-        }
-    }
-}
-
-// Função para consultar
 void consultar(Tree *t) {
     int opcaoConsulta;
     printf("Escolha o tipo de consulta:\n");
@@ -267,10 +341,10 @@ void consultar(Tree *t) {
             break;
         }
         case 2: {
-            char cultivarConsulta[20];
-            printf("Digite o cultivar para consulta: ");
-            scanf("%s", cultivarConsulta);
-            consultarPorCultivar(t->root, cultivarConsulta);
+            int selop;
+            printf("Selecione o tipo de cultivar do feno:\n 1 - Tifton 85, 2 - Florakirk, 3 - Jiggs, 4 - Coastcross: ");
+            scanf("%d", &selop);
+            consultarPorCultivar(t->root, selop);
             break;
         }
         default:
@@ -278,21 +352,14 @@ void consultar(Tree *t) {
     }
 }
 
-// Função para alterar um registro na árvore
 void alterarRegistro(Node *t, int codigo) {
     if (t == NULL) {
-        printf("Nenhum registro encontrado com o código %d.\n", codigo);
         return;
     }
 
-    if (codigo < t->info.codigo) {
-        alterarRegistro(t->left, codigo);
-    } 
-    else if (codigo > t->info.codigo) {
-        alterarRegistro(t->right, codigo);
-    } 
-    else {
-        // Registro encontrado, permite a alteração
+    alterarRegistro(t->left, codigo);
+    alterarRegistro(t->right, codigo);
+    if (t != NULL && codigo == t->info.codigo){
         int opcaoAlteracao;
         do {
             printf("Escolha o campo para alteracao:\n");
@@ -346,7 +413,6 @@ void alterarRegistro(Node *t, int codigo) {
     }
 }
 
-// Função para chamar a alteração
 void chamarAlteracao(Tree *t) {
     int codigoAlteracao;
     printf("Digite o codigo do registro que deseja alterar: ");
@@ -354,10 +420,9 @@ void chamarAlteracao(Tree *t) {
     alterarRegistro(t->root, codigoAlteracao);
 }
 
-// Função para remover um nó da árvore
 Node *removerNode(Node *t, int codigo) {
     if (t == NULL) {
-        printf("A árvore está vazia. Nenhum registro para excluir.\n");
+        printf("A arvore esta vazia. Nenhum registro para excluir.\n");
         return t;
     }
 
@@ -370,19 +435,19 @@ Node *removerNode(Node *t, int codigo) {
     else {
         if(t->left == NULL && t->right == NULL){
             free(t);
-            printf("Registro com código %d excluído com sucesso.\n", codigo);
+            printf("Registro com codigo %d excluido com sucesso.\n", codigo);
             return NULL;
         }
         if(t->left != NULL && t->right == NULL){
             Node *aux = t->left;
             free(t);
-            printf("Registro com código %d excluído com sucesso.\n", codigo);
+            printf("Registro com codigo %d excluido com sucesso.\n", codigo);
             return aux;
         }
         else if(t->left == NULL && t->right != NULL){
             Node *aux = t->right;
             free(t);
-            printf("Registro com código %d excluído com sucesso.\n", codigo);
+            printf("Registro com codigo %d excluido com sucesso.\n", codigo);
             return aux;
         }
         else{ 
@@ -400,14 +465,13 @@ Node *removerNode(Node *t, int codigo) {
             }
             t->info = succ->info;
             free(succ);
-            printf("Registro com código %d excluído com sucesso.\n", codigo);
+            printf("Registro com codigo %d excluido com sucesso.\n", codigo);
             return t;
         }
     }
     return t;
 }
 
-// Função para chamar a exclusão
 void chamarExclusao(Tree *t) {
     int codigoExclusao;
     printf("Digite o codigo do registro que deseja excluir: ");
@@ -415,7 +479,6 @@ void chamarExclusao(Tree *t) {
     t->root = removerNode(t->root, codigoExclusao);
 }
 
-// Função do menu
 void menu(Tree *t) {
     int opcao;
     do {
